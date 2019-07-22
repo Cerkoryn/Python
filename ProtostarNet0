@@ -1,0 +1,19 @@
+import struct
+from socket import *
+
+host = "127.0.0.1"
+port = 2999
+s = socket(AF_INET, SOCK_STREAM)
+s.connect((host, port))
+
+reply =  s.recv(1024)
+print reply
+
+reply = reply.replace('Please send \'', '')
+reply = reply.replace('\' as a little endian 32bit int', '')
+reply = int(reply, 10)
+answer = struct.pack('<I', reply)
+s.send(answer)
+
+replyTwo = s.recv(1024)
+print replyTwo
