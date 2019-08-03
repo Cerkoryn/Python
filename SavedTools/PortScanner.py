@@ -18,8 +18,6 @@ print("*" * 40)
 print("* Scanning: " + target + " *")
 print("*" * 40)
 
-
-
 for port in range(1, 10000):    
     thread.start_new_thread(handler, (target, port))
 print("Ports open are " + str(openPorts)[1:-1])
