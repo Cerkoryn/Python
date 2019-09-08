@@ -1,0 +1,66 @@
+nums = [6, 8, 2, 1, 4 ,0, 7, 3]
+
+FirstCase = [6, 8, 2]
+SecondCase = [6, 1, 4]
+ThirdCase = [2, 0, 6]
+FourthCase = [7, 3, 8]
+FifthCase = [7, 8, 0]
+
+def checkFirst(attempt):
+    if ((attempt[0] == FirstCase[0]) or (attempt[1] == FirstCase[1]) or (attempt[2] == FirstCase[2])):
+        return True
+    else: 
+        return False
+
+def checkSecond(attempt):
+    if ((attempt[0] in SecondCase) and (attempt[1] not in SecondCase) and (attempt[2] not in SecondCase)):
+        if attempt[0] != SecondCase[0]:
+            return True
+    elif ((attempt[0] not in SecondCase) and (attempt[1] in SecondCase) and (attempt[2] not in SecondCase)):
+        if attempt[1] != SecondCase[1]:
+            return True
+    elif ((attempt[0] not in SecondCase) and (attempt[1] not in SecondCase) and (attempt[2] in SecondCase)):
+        if attempt[2] != SecondCase[2]:
+            return True
+    else:
+        return False
+
+def checkThird(attempt):
+    if ((attempt[0] in ThirdCase) and (attempt[1] in ThirdCase) and (attempt[2] not in ThirdCase)):
+        if ((attempt[0] != ThirdCase[0]) and (attempt[1] != ThirdCase[1])):
+            return True
+    elif ((attempt[0] not in ThirdCase) and (attempt[1] in ThirdCase) and (attempt[2] in ThirdCase)):
+        if ((attempt[1] != ThirdCase[1]) and (attempt[2] != ThirdCase[2])):
+            return True
+    elif ((attempt[0] in ThirdCase) and (attempt[1] not in ThirdCase) and (attempt[2] in ThirdCase)):
+        if ((attempt[0] != ThirdCase[0]) and (attempt[2] != ThirdCase[2])):
+            return True
+    else:
+        return False
+
+def checkFourth(attempt):
+    if ((attempt[0] not in FourthCase) and (attempt[1] not in FourthCase) and (attempt[2] not in FourthCase)):
+        return True
+    else:
+        return False
+
+def checkFifth(attempt):
+    if ((attempt[0] in FifthCase) and (attempt[1] not in FifthCase) and (attempt[2] not in FifthCase)):
+        return True
+    elif ((attempt[0] not in FifthCase) and (attempt[1] in FifthCase) and (attempt[2] not in FifthCase)):
+        return True
+    elif ((attempt[0] not in FifthCase) and (attempt[1] not in FifthCase) and (attempt[2] in FifthCase)):
+        return True
+    else:
+        return False
+
+test = [0,0,0]
+
+for int1 in nums:
+    test[0] = int1
+    for int2 in nums:
+        test[1] = int2
+        for int3 in nums:
+            test[2] = int3
+            if (checkFirst(test) and checkSecond(test) and checkThird(test) and checkFourth(test) and checkFifth(test)):
+              print(test)
