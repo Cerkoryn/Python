@@ -1,0 +1,96 @@
+from netaddr import *
+import numpy as np
+import requests
+import random
+import time
+import sys
+import os
+
+
+if (len(sys.argv) != 2):
+	print("Usage: Python3 StealthScraper.py <CIDRFormattedIPSubnet>") 
+	sys.exit()
+
+rows, toolbar_width = os.popen('stty size', 'r').read().split()
+delay = 5
+subnet = sys.argv[1]
+foundByIPs = {}
+currentProgress = 0
+maxProgress = 2**(32 - int(subnet[-2:])) -2
+
+def progress(count, total, status='completed'):
+    bar_len = (int(toolbar_width)-13)-len(status)
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+    sys.stdout.flush()
+ 
+def valid_ip(address):
+    try:
+        host_bytes = address.split('.')
+        valid = [int(b) for b in host_bytes]
+        valid = [b for b in valid if b >= 0 and b<=255]
+        return len(host_bytes) == 4 and len(valid) == 4
+    except:
+        return False
+
+def get_random_ua():
+    random_ua = ''
+    ua_file = 'UserAgentList.txt'
+    try:
+        with open(ua_file) as f:
+            lines = f.readlines()
+        if len(lines) > 0:
+            prng = np.random.RandomState()
+            index = prng.permutation(len(lines) - 1)
+            idx = np.asarray(index, dtype=np.integer)[0]
+            random_proxy = lines[int(idx)]
+    except Exception as ex:
+        print('Exception in random_ua')
+        print(str(ex))
+    finally:
+        return random_ua
+
+  
+for ip in IPNetwork(subnet).iter_hosts():      
+	progress(currentProgress, maxProgress)
+	data = {
+		'MIME Type': 'application/x-www-form-urlencoded',
+		'q': ip,
+		'v': 'Auto',
+		'p': 'UDP'
+    	       }
+	user_agent = get_random_ua()
+	headers = {
+		'Accept': 'image/png,image/svg+xml,image/*;q=0.8,video/*;q=0.8,*/*;q=0.5',
+		'Accept-Encoding': 'gzip, deflate',
+		'Host': '4or6.com',
+        	'user-agent': user_agent,
+		'Accept-Language': 'en-us',
+		'Referer': 'http://4or6.com/traceroute.php?l=en',
+		'Connection':'keep-alive'
+   		  }
+	req = requests.post('http://4or6.com/traceroute.php',headers=headers, data=data)
+	reqItems = (req.text).split()
+	ipCount = 0
+	for item in reqItems:
+		potentialIP = item.strip('(').strip(')')
+		if valid_ip(potentialIP):
+			if (str(potentialIP) == str(ip)):
+				ipCount +=1
+			if (potentialIP not in foundByIPs and (str(potentialIP) != str(ip))):
+				foundByIPs.update({potentialIP : ip})
+			elif (potentialIP not in foundByIPs and (ipCount > 3)):
+				foundByIPs.update({potentialIP : ip})
+	timeDelay = random.randrange(1, delay)
+	time.sleep(timeDelay)
+	currentProgress += 1
+
+progress(currentProgress, maxProgress)
+print("\n")
+for i in sorted(foundByIPs):
+	print(str(i) + "		found by tracing to		" + str(foundByIPs[i]))
+print("\n")
